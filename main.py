@@ -13,7 +13,7 @@ def welcome(message):
 
     markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
     item1 = types.KeyboardButton('Рандомное число')
-    item2 = types.KeyboardButton('Тебе хорошо? 💩')
+    item2 = types.KeyboardButton('🥰Как дела?')
     markup.add(item1, item2)
 
     bot.send_message(message.chat.id,
@@ -31,10 +31,38 @@ def lalala(message):
     if message.chat.type == 'private':
         if message.text == 'Рандомное число':
             bot.send_message(message.chat.id, str(randint(1, 10**6)))
-        elif message.text == 'Тебе хорошо? 💩':
-            bot.send_message(message.chat.id, 'Сходи в туалет!')
+        elif message.text == '🥰Как дела?':
+
+            markup = types.InlineKeyboardMarkup(row_width=2)
+            item1 = types.InlineKeyboardButton('Хорошо', callback_data='good')
+            item2 = types.InlineKeyboardButton('Плохо', callback_data='bad')
+            markup.add(item1, item2)
+
+            bot.send_message(
+                message.chat.id, 'Отлично! Как сам?', reply_markup=markup)
+
         else:
             bot.send_message(message.chat.id, 'Я не знаю что ответить 😒')
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_inline(call):
+    try:
+        if call.message:
+            if call.data == 'good':
+                bot.send_message(call.message.chat.id,
+                                 "Очень хорошо, я за тебя рад")
+            elif call.data == 'bad':
+                bot.send_message(call.message.chat.id,
+                                 "Надеюсь, что в будущем будет всё хорошо!")
+
+            bot.edit_message_text(
+                chat_id=call.message.chat.id,
+                message_id=call.message.message_id,
+                reply_markup=None
+            )
+    except Exception as e:
+        print(repr(e))
 
 
 bot.polling(none_stop=True)
